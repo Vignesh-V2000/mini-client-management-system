@@ -10,6 +10,7 @@ import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
 
 export const app = express();
 
+app.set('trust proxy', env.TRUST_PROXY_HOPS);
 app.disable('x-powered-by');
 app.use(helmet());
 const clientOrigin = new URL(env.CLIENT_URL).origin;
@@ -62,6 +63,8 @@ app.use((error, _request, response, next) => {
   if (error.type === 'entity.too.large') {
     return response.status(413).json({ message: 'Request body too large' });
   }
-  console.error('Unexpected request error:', error.name);
+  const errorCode = error.errorCode ?? error.code;
+  const prismaCode = /^P\d{4}$/.test(errorCode) ? errorCode : undefined;
+  console.error('Unexpected request error:', error.name, prismaCode ?? '');
   response.status(500).json({ message: 'Unexpected server error' });
 });
