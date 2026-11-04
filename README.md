@@ -1,6 +1,7 @@
 # Mini Client Management System
 
 The application includes administrator sign-in, a protected dashboard, and client management backed by Express, Prisma, and MySQL. The dashboard shows counts by status and the five newest clients. The client list supports search by name, company, or email, status filters, and pagination.
+#LIVE LINK: https://mini-client-management-system-production.up.railway.app/
 
 ## Local setup
 
