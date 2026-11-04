@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ClientForm } from '../components/clients/ClientForm.jsx';
 import { DashboardLayout } from '../components/layout/DashboardLayout.jsx';
+import { ApiState } from '../components/ui/ApiState.jsx';
 import { AuthProvider, useAuth } from '../features/auth/AuthProvider.jsx';
 import { ProtectedRoute } from '../features/auth/ProtectedRoute.jsx';
 import { ClientDetailsPage } from '../pages/ClientDetailsPage.jsx';
@@ -11,17 +12,10 @@ import { LoginPage } from '../pages/LoginPage.jsx';
 function SessionRoutes() {
   const { status, restoreSession } = useAuth();
 
-  if (status === 'loading') {
-    return <p className="p-6 text-slate-700" role="status">Checking your session…</p>;
-  }
-
-  if (status === 'error') {
+  if (status !== 'ready') {
     return (
-      <main className="space-y-3 p-6">
-        <p role="alert">Could not check your session.</p>
-        <button className="rounded-lg bg-indigo-700 px-4 py-2 text-white" onClick={() => restoreSession()}>
-          Try again
-        </button>
+      <main className="session-state">
+        <ApiState error={status === 'error' ? 'Could not check your session.' : undefined} retry={() => restoreSession()} />
       </main>
     );
   }

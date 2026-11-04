@@ -1,39 +1,38 @@
+import { ArrowUpRight, Pencil, UsersRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { clientStatuses } from '../../features/clients/clientStatus.js';
 
-const badgeClasses = {
-  LEAD: 'bg-amber-100 text-amber-900',
-  ACTIVE: 'bg-emerald-100 text-emerald-900',
-  INACTIVE: 'bg-slate-100 text-slate-700',
-};
-
 export function StatusBadge({ status }) {
-  return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeClasses[status]}`}>{clientStatuses[status]}</span>;
+  return <span className={`status-badge tone-${status.toLowerCase()}`}>{clientStatuses[status]}</span>;
 }
 
-export function ClientTable({ clients, caption, emptyMessage }) {
-  if (!clients.length) return <p className="panel p-5 text-slate-600">{emptyMessage}</p>;
+export function ClientTable({ clients, caption, emptyMessage, compact = false }) {
+  if (!clients.length) return <div className="empty-state"><UsersRound aria-hidden="true" /><p>{emptyMessage}</p></div>;
 
   return (
-    <div className="panel overflow-x-auto" tabIndex={0} role="region" aria-label={caption}>
-      <table className="w-full text-left text-sm">
+    <div className="records-wrap">
+      <table className="records-table" role="table">
         <caption className="sr-only">{caption}</caption>
-        <thead className="bg-slate-100 text-slate-700">
-          <tr>{['Name', 'Company', 'Email', 'Status', 'Actions'].map((label) => (
-            <th className="px-4 py-3" key={label} scope="col">{label}</th>
+        <thead role="rowgroup">
+          <tr role="row">{(compact ? ['Client', 'Status', 'Actions'] : ['Client', 'Email', 'Status', 'Actions']).map((label) => (
+            <th key={label} scope="col" role="columnheader">{label}</th>
           ))}</tr>
         </thead>
-        <tbody className="divide-y divide-slate-200">
+        <tbody role="rowgroup">
           {clients.map((client) => (
-            <tr key={client.id}>
-              <th scope="row" className="px-4 py-3 font-medium">
-                <Link className="text-indigo-700 hover:underline" to={`/clients/${client.id}`}>{client.name}</Link>
+            <tr key={client.id} role="row">
+              <th scope="row" role="rowheader" className="record-name">
+                <Link className="record-person" to={`/clients/${client.id}`}>
+                  <span className="record-avatar" aria-hidden="true">{client.name.trim().slice(0, 1).toUpperCase()}</span>
+                  <span><strong>{client.name}</strong>{client.company && <small>{client.company}</small>}</span>
+                </Link>
               </th>
-              <td className="px-4 py-3">{client.company || '—'}</td>
-              <td className="px-4 py-3">{client.email || '—'}</td>
-              <td className="px-4 py-3"><StatusBadge status={client.status} /></td>
-              <td className="px-4 py-3">
-                <Link className="text-indigo-700 hover:underline" to={`/clients/${client.id}/edit`} aria-label={`Edit ${client.name}`}>Edit</Link>
+              {!compact && <td role="cell" className="record-email">{client.email || 'No email'}</td>}
+              <td role="cell" className="record-status"><StatusBadge status={client.status} /></td>
+              <td role="cell" className="record-action">
+                <Link className="icon-button" to={`/clients/${client.id}${compact ? '' : '/edit'}`} aria-label={`${compact ? 'View' : 'Edit'} ${client.name}`}>
+                  {compact ? <ArrowUpRight aria-hidden="true" /> : <Pencil aria-hidden="true" />}
+                </Link>
               </td>
             </tr>
           ))}

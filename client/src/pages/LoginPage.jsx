@@ -1,13 +1,14 @@
 import { useState } from 'react';
+import { ArrowRight, Eye, EyeOff, LockKeyhole } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
+import { Brand } from '../components/ui/Brand.jsx';
 import { useAuth } from '../features/auth/AuthProvider.jsx';
-
-const inputClass = 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-950 focus:border-indigo-600 focus:outline-2 focus:outline-indigo-600';
 
 export function LoginPage() {
   const { user, signIn } = useAuth();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   if (user) return <Navigate to="/dashboard" replace />;
 
@@ -29,24 +30,49 @@ export function LoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-slate-50 p-6 text-slate-900">
-      <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-sm font-semibold text-indigo-700">AffixxMedia</p>
-        <h1 className="mt-2 text-2xl font-semibold">Sign in to Client Management</h1>
-        <form className="mt-6 space-y-4" onSubmit={submit} aria-busy={pending}>
-          <label className="block text-sm font-medium">
-            Email
-            <input className={inputClass} name="email" type="email" autoComplete="username" maxLength={191} required />
-          </label>
-          <label className="block text-sm font-medium">
-            Password
-            <input className={inputClass} name="password" type="password" autoComplete="current-password" maxLength={72} required />
-          </label>
-          {error && <p className="text-sm text-red-700" role="alert">{error}</p>}
-          <button className="w-full rounded-lg bg-indigo-700 px-4 py-2.5 font-medium text-white hover:bg-indigo-800 disabled:opacity-60" disabled={pending}>
-            {pending ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
+    <main className="login-layout">
+      <aside className="login-stage" aria-label="AffixxMedia client workspace">
+        <Brand />
+        <div className="login-stage-copy">
+          <p className="eyebrow">Client management</p>
+          <p className="login-display">Every client.<br />{' '}One workspace.</p>
+          <p>Keep contact details, leads, and account notes together.</p>
+        </div>
+        <svg className="login-graphic" viewBox="0 0 520 390" fill="none" aria-hidden="true">
+          <g stroke="currentColor">
+            <circle cx="270" cy="200" r="132" /><circle cx="356" cy="200" r="132" />
+            <circle cx="313" cy="200" r="188" strokeDasharray="3 9" />
+            <path d="M64 200h440M313 12v376" strokeDasharray="4 8" />
+            <path d="M138 200h86l89-125 91 125h84" strokeWidth="2" />
+          </g>
+          <g fill="currentColor"><circle cx="138" cy="200" r="5" /><circle cx="313" cy="75" r="7" /><circle cx="404" cy="200" r="5" /></g>
+        </svg>
+      </aside>
+      <section className="login-entry" aria-labelledby="login-title">
+        <div className="login-form-wrap">
+          <span className="login-lock"><LockKeyhole size={22} aria-hidden="true" /></span>
+          <h1 id="login-title">Sign in</h1>
+          <p className="page-description">Use your account to open the client workspace.</p>
+          <form className="login-form" onSubmit={submit} aria-busy={pending}>
+            <label className="form-field">
+              <span>Email address</span>
+              <input className="field" name="email" type="email" autoComplete="username" maxLength={191} required />
+            </label>
+            <div className="form-field">
+              <label htmlFor="login-password">Password</label>
+              <div className="password-field">
+                <input className="field" id="login-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" maxLength={72} required />
+                <button type="button" className="icon-button password-toggle" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((visible) => !visible)}>
+                  {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                </button>
+              </div>
+            </div>
+            {error && <p className="notice notice-error" role="alert">{error}</p>}
+            <button className="button-primary login-submit" disabled={pending}>
+              {pending ? 'Signing in…' : 'Sign in'} <ArrowRight aria-hidden="true" />
+            </button>
+          </form>
+        </div>
       </section>
     </main>
   );

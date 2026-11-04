@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ClientForm } from '../components/clients/ClientForm.jsx';
 import { StatusBadge } from '../components/clients/ClientTable.jsx';
@@ -14,9 +15,10 @@ export function ClientDetailsPage({ editing = false }) {
   const { state } = useLocation();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const dialog = useRef(null);
 
   async function handleDelete() {
-    if (!window.confirm(`Delete ${client.name}? This action cannot be undone.`)) return;
+    if (deleting) return;
     setDeleting(true);
     setDeleteError('');
     try {
@@ -31,36 +33,49 @@ export function ClientDetailsPage({ editing = false }) {
 
   return (
     <>
-      <Link className="text-sm font-medium text-indigo-700 hover:underline" to="/clients">Back to clients</Link>
+      {!editing && <Link className="text-link back-link" to="/clients"><ArrowLeft aria-hidden="true" /> Back to clients</Link>}
       {!client && <ApiState error={error} retry={retry} />}
       {client && editing && <ClientForm key={client.id} client={client} />}
       {client && !editing && (
         <>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="break-all text-2xl font-semibold">{client.name}</h1>
-            <div className="flex gap-2">
-              <Link className="button" to="edit">Edit client</Link>
-              <button className="button text-red-700" onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Deleting…' : 'Delete client'}
+          <div className="page-heading">
+            <div><p className="eyebrow">Client record</p><h1>{client.name}</h1>{client.company && <p className="page-description">{client.company}</p>}</div>
+            <div className="action-row">
+              <button className="button button-delete" onClick={() => { setDeleteError(''); dialog.current.showModal(); }}>
+                <Trash2 aria-hidden="true" /> Delete client
               </button>
+              <Link className="button-primary" to="edit"><Pencil aria-hidden="true" /> Edit client</Link>
             </div>
           </div>
-          {state?.notice && <p className="text-sm text-emerald-800" role="status">{state.notice}</p>}
-          {deleteError && <p className="text-sm text-red-700" role="alert">{deleteError}</p>}
-          <dl className="panel grid gap-5 p-5 sm:grid-cols-2">
-            {[
-              ['Company', client.company],
-              ['Email', client.email],
-              ['Phone', client.phone],
-              ['Status', <StatusBadge status={client.status} />],
-              ['Notes', client.notes],
-            ].map(([label, value]) => (
-              <div className={label === 'Notes' ? 'sm:col-span-2' : undefined} key={label}>
-                <dt className="mb-1 text-sm font-medium text-slate-600">{label}</dt>
-                <dd className="whitespace-pre-wrap break-words">{value || '—'}</dd>
+          {state?.notice && <p className="notice notice-success" role="status">{state.notice}</p>}
+          <section className="panel details-panel" aria-labelledby="details-title">
+            <div className="section-heading"><h2 id="details-title">Client information</h2><StatusBadge status={client.status} /></div>
+            <dl className="details-grid">
+              {[
+                ['Company', client.company],
+                ['Email', client.email],
+                ['Phone', client.phone],
+                ['Notes', client.notes],
+              ].map(([label, value]) => (
+                <div className={label === 'Notes' ? 'form-wide' : undefined} key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value || <span className="page-description">{label === 'Notes' ? 'No notes yet' : 'Not provided'}</span>}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+          <dialog ref={dialog} className="confirm-dialog" aria-labelledby="delete-title" aria-describedby="delete-description" onCancel={(event) => { if (deleting) event.preventDefault(); }}>
+            <div className="dialog-body">
+              <span className="delete-icon"><Trash2 aria-hidden="true" /></span>
+              <h2 id="delete-title">Delete client?</h2>
+              <p id="delete-description">This will permanently remove <strong>{client.name}</strong> and their notes.</p>
+              {deleteError && <p className="notice notice-error" role="alert">{deleteError}</p>}
+              <div className="action-row">
+                <button className="button" autoFocus disabled={deleting} onClick={() => dialog.current.close()}>Cancel</button>
+                <button className="button-danger" disabled={deleting} onClick={handleDelete}>{deleting ? 'Deleting…' : 'Delete client'}</button>
               </div>
-            ))}
-          </dl>
+            </div>
+          </dialog>
         </>
       )}
     </>

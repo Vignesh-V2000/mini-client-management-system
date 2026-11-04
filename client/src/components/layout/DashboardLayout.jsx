@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { LayoutDashboard, LogOut, UsersRound } from 'lucide-react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../features/auth/AuthProvider.jsx';
+import { Brand } from '../ui/Brand.jsx';
 
 export function DashboardLayout() {
   const { user, signOut } = useAuth();
+  const { pathname } = useLocation();
+  const initials = user.name.trim().split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,23 +24,30 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 md:grid md:grid-cols-[14rem_minmax(0,1fr)]">
-      <aside className="bg-slate-950 px-5 py-4 text-white md:py-7">
-        <p className="font-semibold">AffixxMedia</p>
-        <nav aria-label="Main navigation" className="mt-3 flex flex-wrap gap-2 md:mt-6 md:flex-col">
-          <NavLink className="nav-link" to="/dashboard">Dashboard</NavLink>
-          <NavLink className="nav-link" to="/clients">Clients</NavLink>
+    <div className="workspace">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <aside className="workspace-rail">
+        <Brand />
+        <p className="eyebrow rail-label">Workspace</p>
+        <nav aria-label="Main navigation" className="workspace-nav">
+          <NavLink className="nav-link" to="/dashboard"><LayoutDashboard aria-hidden="true" /> Dashboard</NavLink>
+          <NavLink className="nav-link" to="/clients"><UsersRound aria-hidden="true" /> Clients</NavLink>
         </nav>
+        <div className="rail-footer"><span className="rail-footer-dot" /> Client management</div>
       </aside>
-      <div className="min-w-0">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-3 sm:px-8">
-          <p className="text-sm text-slate-600">Signed in as {user.name}</p>
-          <button className="button" onClick={handleSignOut} disabled={pending}>
-            {pending ? 'Signing out…' : 'Sign out'}
-          </button>
-          {error && <p className="w-full text-sm text-red-700" role="alert">{error}</p>}
+      <div className="workspace-body">
+        <header className="workspace-bar">
+          <p className="breadcrumb"><span>Workspace</span><span aria-hidden="true">/</span><strong>{pathname.startsWith('/clients') ? 'Clients' : 'Dashboard'}</strong></p>
+          <div className="account">
+            <span className="account-avatar" aria-hidden="true">{initials}</span>
+            <span className="account-name">{user.name}</span>
+            <button className="button button-quiet" onClick={handleSignOut} disabled={pending}>
+              <LogOut aria-hidden="true" /> {pending ? 'Signing out…' : 'Sign out'}
+            </button>
+          </div>
+          {error && <p className="notice notice-error account-error" role="alert">{error}</p>}
         </header>
-        <main className="mx-auto max-w-7xl space-y-6 p-5 sm:p-8">
+        <main className="workspace-content" id="main-content" tabIndex={-1}>
           <Outlet />
         </main>
       </div>
