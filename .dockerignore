@@ -1,0 +1,8 @@
+.git
+.local
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+**/*.log
+AffixxMedia_Full_Stack_Assessment_Architecture_Build_Plan.md

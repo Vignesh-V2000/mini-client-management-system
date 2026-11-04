@@ -42,6 +42,20 @@ Open http://localhost:5173 and sign in with the seeded administrator email and p
 
 Build the frontend with `npm run build --prefix client`.
 
+## Railway deployment
+
+Connect the GitHub repository's `main` branch to a Railway service using the repository root. Add a MySQL service to the same project and generate an HTTPS domain for the app. The root Dockerfile builds React and serves it from Express with the API on the same origin.
+
+| App variable | Value |
+| --- | --- |
+| `DATABASE_URL` | Private MySQL URL reference, such as `${{MySQL.MYSQL_URL}}` when the database service is named MySQL |
+| `CLIENT_URL` | The app's full public HTTPS origin |
+| `JWT_SECRET` | A new random secret generated using the command above |
+| `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | New credentials for the hosted demo |
+| `SEED_DEMO` | `true` to insert fictional clients on the first deploy |
+
+Railway runs the migration and seed before starting the service. Remove `SEED_DEMO` after the first successful deployment to avoid recreating deleted demo records. Open the app URL and sign in with the hosted administrator.
+
 ## Authentication
 
 - `POST /api/auth/login` accepts JSON with `email` and `password`. It returns the administrator profile and sets a one-hour HttpOnly session cookie.

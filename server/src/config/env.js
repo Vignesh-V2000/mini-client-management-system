@@ -5,6 +5,7 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   JWT_SECRET: z.string().min(32),
   HOST: z.string().min(1).optional(),
+  SERVE_CLIENT: z.enum(['true', 'false']).default('false'),
   PORT: z.coerce.number().int().min(1).max(65535).default(5000),
   CLIENT_URL: z.url({ protocol: /^https?$/ }).default('http://localhost:5173'),
   DATABASE_URL: z.url({ protocol: /^mysql$/ }),

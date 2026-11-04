@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
+import { fileURLToPath } from 'node:url';
 import { db } from './config/db.js';
 import { env } from './config/env.js';
 import { authRouter } from './modules/auth/auth.routes.js';
@@ -38,6 +39,15 @@ app.get('/api/ready', async (_request, response) => {
     response.status(503).json({ status: 'unavailable' });
   }
 });
+
+if (env.SERVE_CLIENT === 'true') {
+  const clientDist = fileURLToPath(new URL('../../client/dist/', import.meta.url));
+  app.use(express.static(clientDist));
+  app.get('/{*path}', (request, response, next) => {
+    if (request.path === '/api' || request.path.startsWith('/api/')) return next();
+    response.sendFile('index.html', { root: clientDist });
+  });
+}
 
 app.use((_request, response) => {
   response.status(404).json({ message: 'Endpoint not found' });
