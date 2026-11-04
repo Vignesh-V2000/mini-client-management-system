@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ClientStatus {
+  LEAD
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(120)
+  email        String   @unique @db.VarChar(191)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Client {
+  id        Int          @id @default(autoincrement())
+  name      String       @db.VarChar(120)
+  company   String?      @db.VarChar(150)
+  email     String?      @db.VarChar(191)
+  phone     String?      @db.VarChar(30)
+  status    ClientStatus @default(LEAD)
+  notes     String?      @db.Text
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  @@index([name])
+  @@index([status])
+  @@index([email])
+  @@map("clients")
+}

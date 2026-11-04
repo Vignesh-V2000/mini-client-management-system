@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@layer components {
+  .panel { @apply rounded-xl border border-slate-200 bg-white shadow-sm; }
+  .button { @apply inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-50; }
+  .button-primary { @apply inline-flex items-center justify-center rounded-lg bg-indigo-700 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-800 disabled:opacity-50; }
+  .field { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950; }
+  .nav-link { @apply rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-slate-800; }
+  .nav-link[aria-current="page"] { @apply bg-indigo-700 text-white; }
+}
